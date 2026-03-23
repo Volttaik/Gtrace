@@ -7,7 +7,7 @@ import { searchLocations } from "../lib/locations";
 const router: IRouter = Router();
 
 // Public: Track a package by tracking ID
-router.get("/track/:trackingId", async (req, res) => {
+router.get("/packages/track/:trackingId", async (req, res) => {
   try {
     const pkg = await PackageModel.findOne({ trackingId: req.params.trackingId });
     if (!pkg) {
