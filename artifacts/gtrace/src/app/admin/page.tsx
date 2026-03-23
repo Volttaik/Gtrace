@@ -106,8 +106,8 @@ export default function Admin() {
                       <td className="px-6 py-4 font-mono text-primary font-medium">{pkg.trackingId}</td>
                       <td className="px-6 py-4 font-medium text-foreground">{pkg.name}</td>
                       <td className="px-6 py-4">{getStatusBadge(pkg.status)}</td>
-                      <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.currentLocation.name}</td>
-                      <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.destination.name}</td>
+                      <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.currentLocation?.name ?? "—"}</td>
+                      <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.destination?.name ?? "—"}</td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Button variant="outline" size="sm" onClick={() => setUpdateLocPkg(pkg)} title="Update Location" className="h-8 w-8 p-0 border-gray-200 hover:bg-gray-50 text-gray-700"><MapPin className="w-4 h-4" /></Button>
