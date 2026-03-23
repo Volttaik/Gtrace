@@ -28,11 +28,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-3">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{
-                background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-                boxShadow: "0 0 16px rgba(59,130,246,0.5)",
-              }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-700"
             >
               <Map className="w-4 h-4 text-white" />
             </div>
