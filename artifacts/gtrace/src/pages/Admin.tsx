@@ -2,6 +2,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Plus, MapPin, Navigation, Edit, Trash2, Search } from "lucide-react"
 import { Navbar } from "@/components/layout/Navbar"
+import { AdminGate } from "@/components/AdminGate"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
@@ -60,6 +61,7 @@ export default function Admin() {
   };
 
   return (
+    <AdminGate>
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
@@ -176,6 +178,7 @@ export default function Admin() {
       </Dialog>
 
     </div>
+    </AdminGate>
   )
 }
 
