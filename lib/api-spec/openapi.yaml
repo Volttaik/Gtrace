@@ -1,22 +1,25 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: G-Trace Package Tracking API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: packages
+    description: Package tracking operations
+  - name: admin
+    description: Admin operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +27,210 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /packages/track/{trackingId}:
+    get:
+      operationId: trackPackage
+      tags: [packages]
+      summary: Track a package by tracking ID
+      parameters:
+        - name: trackingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Package tracking info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageTracking"
+        "404":
+          description: Package not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/packages:
+    get:
+      operationId: listPackages
+      tags: [admin]
+      summary: List all packages
+      responses:
+        "200":
+          description: List of packages
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  packages:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Package"
+                required:
+                  - packages
+    post:
+      operationId: createPackage
+      tags: [admin]
+      summary: Create a new package
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePackageRequest"
+      responses:
+        "201":
+          description: Package created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+
+  /admin/packages/{id}:
+    get:
+      operationId: getPackage
+      tags: [admin]
+      summary: Get a package by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Package details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+        "404":
+          description: Package not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updatePackage
+      tags: [admin]
+      summary: Update a package
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePackageRequest"
+      responses:
+        "200":
+          description: Package updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+    delete:
+      operationId: deletePackage
+      tags: [admin]
+      summary: Delete a package
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Package deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/packages/{id}/location:
+    put:
+      operationId: updatePackageLocation
+      tags: [admin]
+      summary: Update current package location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLocationRequest"
+      responses:
+        "200":
+          description: Location updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+
+  /admin/packages/{id}/schedule-move:
+    post:
+      operationId: scheduleMove
+      tags: [admin]
+      summary: Schedule automatic move to a location within days
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleMoveRequest"
+      responses:
+        "200":
+          description: Move scheduled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+
+  /locations/search:
+    get:
+      operationId: searchLocations
+      tags: [packages]
+      summary: Search locations (countries, cities, ports, airports)
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matching locations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locations:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Location"
+                required:
+                  - locations
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +241,263 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    Location:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [city, port, airport, country, warehouse]
+        country:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+      required:
+        - name
+        - type
+        - country
+        - lat
+        - lng
+
+    LocationEvent:
+      type: object
+      properties:
+        location:
+          $ref: "#/components/schemas/Location"
+        timestamp:
+          type: string
+        status:
+          type: string
+        description:
+          type: string
+      required:
+        - location
+        - timestamp
+        - status
+        - description
+
+    ScheduledMove:
+      type: object
+      properties:
+        targetLocation:
+          $ref: "#/components/schemas/Location"
+        scheduledAt:
+          type: string
+        arrivesInDays:
+          type: number
+        arrivalDate:
+          type: string
+      required:
+        - targetLocation
+        - scheduledAt
+        - arrivesInDays
+        - arrivalDate
+
+    Package:
+      type: object
+      properties:
+        _id:
+          type: string
+        trackingId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        weight:
+          type: string
+        dimensions:
+          type: string
+        category:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        origin:
+          $ref: "#/components/schemas/Location"
+        destination:
+          $ref: "#/components/schemas/Location"
+        currentLocation:
+          $ref: "#/components/schemas/Location"
+        status:
+          type: string
+          enum: [pending, in_transit, out_for_delivery, delivered, exception]
+        estimatedDelivery:
+          type: string
+        totalDistance:
+          type: number
+        distanceTravelled:
+          type: number
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocationEvent"
+        scheduledMove:
+          $ref: "#/components/schemas/ScheduledMove"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - _id
+        - trackingId
+        - name
+        - description
+        - origin
+        - destination
+        - currentLocation
+        - status
+        - history
+        - createdAt
+        - updatedAt
+
+    PackageTracking:
+      type: object
+      properties:
+        trackingId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        origin:
+          $ref: "#/components/schemas/Location"
+        destination:
+          $ref: "#/components/schemas/Location"
+        currentLocation:
+          $ref: "#/components/schemas/Location"
+        estimatedDelivery:
+          type: string
+        totalDistance:
+          type: number
+        distanceTravelled:
+          type: number
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/LocationEvent"
+        scheduledMove:
+          $ref: "#/components/schemas/ScheduledMove"
+      required:
+        - trackingId
+        - name
+        - description
+        - status
+        - origin
+        - destination
+        - currentLocation
+        - history
+
+    CreatePackageRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        weight:
+          type: string
+        dimensions:
+          type: string
+        category:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        origin:
+          $ref: "#/components/schemas/Location"
+        destination:
+          $ref: "#/components/schemas/Location"
+        status:
+          type: string
+        estimatedDelivery:
+          type: string
+      required:
+        - name
+        - description
+        - origin
+        - destination
+
+    UpdatePackageRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        weight:
+          type: string
+        dimensions:
+          type: string
+        category:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        origin:
+          $ref: "#/components/schemas/Location"
+        destination:
+          $ref: "#/components/schemas/Location"
+        status:
+          type: string
+        estimatedDelivery:
+          type: string
+
+    UpdateLocationRequest:
+      type: object
+      properties:
+        location:
+          $ref: "#/components/schemas/Location"
+        status:
+          type: string
+        description:
+          type: string
+      required:
+        - location
+
+    ScheduleMoveRequest:
+      type: object
+      properties:
+        targetLocation:
+          $ref: "#/components/schemas/Location"
+        arrivesInDays:
+          type: number
+        description:
+          type: string
+      required:
+        - targetLocation
+        - arrivesInDays

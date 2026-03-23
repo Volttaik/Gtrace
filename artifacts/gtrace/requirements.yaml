@@ -1,0 +1,22 @@
+packages:
+  "framer-motion": "For stunning page transitions, micro-interactions, and modal animations"
+  "react-globe.gl": "For the 3D interactive Earth globe on the landing page"
+  "three": "Required peer dependency for react-globe.gl"
+  "react-leaflet": "For the interactive package tracking map"
+  "leaflet": "Core map library for react-leaflet"
+  "@types/leaflet": "TypeScript definitions for leaflet"
+  "date-fns": "For formatting timeline dates and estimated delivery times"
+  "clsx": "For merging tailwind classes"
+  "tailwind-merge": "For merging tailwind classes safely"
+  "react-hook-form": "For robust admin form state management"
+  "@hookform/resolvers": "For zod validation integration"
+
+images:
+  - path: "artifacts/gtrace/public/images/hero-bg.png"
+    description: "Deep space cinematic background with a subtle electric blue nebula and soft starfield, highly detailed 8k"
+    aspect_ratio: "16:9"
+
+notes:
+  - Vite SPA environment
+  - Using generated orval hooks from @workspace/api-client-react
+  - Map components require Leaflet CSS
