@@ -180,11 +180,11 @@ export const LOCATIONS: LocationData[] = [
 ];
 
 export function searchLocations(query: string): LocationData[] {
-  if (!query || query.trim().length < 2) return [];
+  if (!query || query.trim().length < 1) return [];
   const q = query.toLowerCase().trim();
   return LOCATIONS.filter(
     (loc) =>
       loc.name.toLowerCase().includes(q) ||
       loc.country.toLowerCase().includes(q)
-  ).slice(0, 15);
+  );
 }

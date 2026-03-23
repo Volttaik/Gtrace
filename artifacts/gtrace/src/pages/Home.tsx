@@ -288,31 +288,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ DIVIDER STAT BAND ═══ */}
-      <section className="bg-blue-700 py-16">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
-            {[
-              { value: "190+", label: "Countries Covered" },
-              { value: "2M+", label: "Packages Tracked" },
-              { value: "99.9%", label: "Uptime Guaranteed" },
-              { value: "50+", label: "Major Ports" },
-            ].map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.6 }}
-              >
-                <div className="text-3xl lg:text-4xl font-display font-bold text-white mb-1">{s.value}</div>
-                <div className="text-blue-200 text-sm font-medium">{s.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ═══ EARTH / SATELLITE ═══ */}
       <section className="bg-white py-28 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
@@ -401,7 +376,7 @@ export default function Home() {
       <section className="relative py-32 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1504890967-14addfd4f4b0?w=1920&q=80&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=1920&q=80&auto=format&fit=crop"
             alt="Workers managing cargo containers"
             className="w-full h-full object-cover object-center"
           />

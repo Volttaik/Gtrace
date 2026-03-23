@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { motion } from "framer-motion"
-import { Plus, MapPin, Navigation, Edit, Trash2, Search } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Plus, MapPin, Navigation, Edit, Trash2, Search, CheckCircle2, Loader2 } from "lucide-react"
 import { Navbar } from "@/components/layout/Navbar"
 import { AdminGate } from "@/components/AdminGate"
 import { Button } from "@/components/ui/button"
@@ -26,12 +26,13 @@ export default function Admin() {
   const updatePkgMut = useUpdatePackageMutation();
 
   const [search, setSearch] = useState("");
-  
-  // Modals state
+
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createSuccess, setCreateSuccess] = useState(false);
   const [updateLocPkg, setUpdateLocPkg] = useState<Package | null>(null);
   const [schedulePkg, setSchedulePkg] = useState<Package | null>(null);
   const [editPkg, setEditPkg] = useState<Package | null>(null);
+  const [editSuccess, setEditSuccess] = useState(false);
 
   const packages = data?.packages.filter(p => 
     p.trackingId.toLowerCase().includes(search.toLowerCase()) || 
@@ -109,9 +110,7 @@ export default function Admin() {
                   <tr key={pkg._id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 font-mono text-primary font-medium">{pkg.trackingId}</td>
                     <td className="px-6 py-4 font-medium text-foreground">{pkg.name}</td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(pkg.status)}
-                    </td>
+                    <td className="px-6 py-4">{getStatusBadge(pkg.status)}</td>
                     <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.currentLocation.name}</td>
                     <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.destination.name}</td>
                     <td className="px-6 py-4 text-right">
@@ -138,25 +137,40 @@ export default function Admin() {
         </motion.div>
       </main>
 
-      {/* CREATE PACKAGE MODAL */}
-      <CreateEditModal 
-        open={isCreateOpen || !!editPkg} 
-        onClose={() => { setIsCreateOpen(false); setEditPkg(null); }}
+      {/* CREATE / EDIT MODAL */}
+      <CreateEditModal
+        open={isCreateOpen || !!editPkg}
+        onClose={() => { setIsCreateOpen(false); setEditPkg(null); setCreateSuccess(false); setEditSuccess(false); }}
         pkg={editPkg}
+        isPending={editPkg ? updatePkgMut.isPending : createMut.isPending}
+        isSuccess={editPkg ? editSuccess : createSuccess}
         onSave={(data: any) => {
-          if (editPkg) updatePkgMut.mutate({ id: editPkg._id, data }, { onSuccess: () => { setEditPkg(null); } });
-          else createMut.mutate({ data }, { onSuccess: () => setIsCreateOpen(false) });
+          if (editPkg) {
+            updatePkgMut.mutate({ id: editPkg._id, data }, {
+              onSuccess: () => {
+                setEditSuccess(true);
+                setTimeout(() => { setEditSuccess(false); setEditPkg(null); }, 1600);
+              }
+            });
+          } else {
+            createMut.mutate({ data }, {
+              onSuccess: () => {
+                setCreateSuccess(true);
+                setTimeout(() => { setCreateSuccess(false); setIsCreateOpen(false); }, 1600);
+              }
+            });
+          }
         }}
       />
 
       {/* UPDATE LOCATION MODAL */}
       <Dialog open={!!updateLocPkg} onOpenChange={(o) => !o && setUpdateLocPkg(null)}>
         <DialogContent className="bg-white border-border shadow-lg">
-          <DialogHeader><DialogTitle className="text-foreground">Update Location - {updateLocPkg?.trackingId}</DialogTitle></DialogHeader>
-          <UpdateLocationForm 
+          <DialogHeader><DialogTitle className="text-foreground">Update Location — {updateLocPkg?.trackingId}</DialogTitle></DialogHeader>
+          <UpdateLocationForm
             onSubmit={(formData: any) => {
               if (updateLocPkg) updateLocMut.mutate({ id: updateLocPkg._id, data: formData }, { onSuccess: () => setUpdateLocPkg(null) });
-            }} 
+            }}
             isPending={updateLocMut.isPending}
           />
           <DialogClose onClick={() => setUpdateLocPkg(null)} />
@@ -166,11 +180,11 @@ export default function Admin() {
       {/* SCHEDULE MOVE MODAL */}
       <Dialog open={!!schedulePkg} onOpenChange={(o) => !o && setSchedulePkg(null)}>
         <DialogContent className="bg-white border-border shadow-lg">
-          <DialogHeader><DialogTitle className="text-foreground">Schedule Move - {schedulePkg?.trackingId}</DialogTitle></DialogHeader>
-          <ScheduleMoveForm 
+          <DialogHeader><DialogTitle className="text-foreground">Schedule Move — {schedulePkg?.trackingId}</DialogTitle></DialogHeader>
+          <ScheduleMoveForm
             onSubmit={(formData: any) => {
               if (schedulePkg) scheduleMut.mutate({ id: schedulePkg._id, data: formData }, { onSuccess: () => setSchedulePkg(null) });
-            }} 
+            }}
             isPending={scheduleMut.isPending}
           />
           <DialogClose onClick={() => setSchedulePkg(null)} />
@@ -182,7 +196,7 @@ export default function Admin() {
   )
 }
 
-function CreateEditModal({ open, onClose, pkg, onSave }: any) {
+function CreateEditModal({ open, onClose, pkg, onSave, isPending, isSuccess }: any) {
   const [origin, setOrigin] = useState<Location | null>(pkg?.origin || null);
   const [destination, setDestination] = useState<Location | null>(pkg?.destination || null);
 
@@ -190,7 +204,6 @@ function CreateEditModal({ open, onClose, pkg, onSave }: any) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     if (!origin || !destination) return alert("Origin and Destination are required");
-    
     onSave({
       name: fd.get("name"),
       description: fd.get("description"),
@@ -198,23 +211,44 @@ function CreateEditModal({ open, onClose, pkg, onSave }: any) {
       category: fd.get("category"),
       status: fd.get("status"),
       origin,
-      destination
+      destination,
     });
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={open} onOpenChange={(o) => !o && !isPending && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-border shadow-lg">
-        <DialogHeader><DialogTitle className="text-foreground">{pkg ? "Edit" : "Create"} Package</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle className="text-foreground">{pkg ? "Edit" : "Create"} Package</DialogTitle>
+        </DialogHeader>
+
+        {/* Success Banner */}
+        <AnimatePresence>
+          {isSuccess && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.97 }}
+              transition={{ duration: 0.25 }}
+              className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl px-4 py-3 mt-2"
+            >
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-500" />
+              <span className="font-medium text-sm">
+                Package {pkg ? "updated" : "created"} successfully!
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Package Name *</label>
-              <Input name="name" defaultValue={pkg?.name} required className="bg-white border-gray-200" />
+              <Input name="name" defaultValue={pkg?.name} required className="bg-white border-gray-200" disabled={isPending || isSuccess} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Status</label>
-              <select name="status" defaultValue={pkg?.status || "pending"} className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+              <select name="status" defaultValue={pkg?.status || "pending"} disabled={isPending || isSuccess} className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-60">
                 <option value="pending">Pending</option>
                 <option value="in_transit">In Transit</option>
                 <option value="out_for_delivery">Out for Delivery</option>
@@ -223,40 +257,60 @@ function CreateEditModal({ open, onClose, pkg, onSave }: any) {
               </select>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Description *</label>
-            <Input name="description" defaultValue={pkg?.description} required className="bg-white border-gray-200" />
+            <Input name="description" defaultValue={pkg?.description} required className="bg-white border-gray-200" disabled={isPending || isSuccess} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Origin *</label>
-              <LocationSearchPicker value={origin || undefined} onChange={setOrigin} placeholder="Search origin..." />
+              <LocationSearchPicker value={origin || undefined} onChange={setOrigin} placeholder="Search origin..." className={isPending || isSuccess ? "pointer-events-none opacity-60" : ""} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Destination *</label>
-              <LocationSearchPicker value={destination || undefined} onChange={setDestination} placeholder="Search destination..." />
+              <LocationSearchPicker value={destination || undefined} onChange={setDestination} placeholder="Search destination..." className={isPending || isSuccess ? "pointer-events-none opacity-60" : ""} />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Weight (kg)</label>
-              <Input name="weight" type="number" step="0.01" defaultValue={pkg?.weight} className="bg-white border-gray-200" />
+              <Input name="weight" type="number" step="0.01" defaultValue={pkg?.weight} className="bg-white border-gray-200" disabled={isPending || isSuccess} />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Category</label>
-              <Input name="category" defaultValue={pkg?.category} className="bg-white border-gray-200" />
+              <Input name="category" defaultValue={pkg?.category} className="bg-white border-gray-200" disabled={isPending || isSuccess} />
             </div>
           </div>
 
           <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
-            <Button type="button" variant="outline" onClick={onClose} className="border-gray-200">Cancel</Button>
-            <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Save Package</Button>
+            <Button type="button" variant="outline" onClick={onClose} className="border-gray-200" disabled={isPending}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || isSuccess}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground min-w-[130px] gap-2"
+            >
+              {isPending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving…
+                </>
+              ) : isSuccess ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  Saved!
+                </>
+              ) : (
+                "Save Package"
+              )}
+            </Button>
           </div>
         </form>
-        <DialogClose onClick={onClose} />
+        <DialogClose onClick={() => !isPending && onClose()} />
       </DialogContent>
     </Dialog>
   );
@@ -270,11 +324,7 @@ function UpdateLocationForm({ onSubmit, isPending }: any) {
       e.preventDefault();
       const fd = new FormData(e.currentTarget);
       if (!location) return alert("Select a location");
-      onSubmit({
-        location,
-        status: fd.get("status"),
-        description: fd.get("description")
-      });
+      onSubmit({ location, status: fd.get("status"), description: fd.get("description") });
     }} className="space-y-4 mt-4">
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-700">New Location *</label>
@@ -288,9 +338,11 @@ function UpdateLocationForm({ onSubmit, isPending }: any) {
         <label className="text-sm font-medium text-slate-700">Description</label>
         <Input name="description" placeholder="Additional details..." required className="bg-white border-gray-200" />
       </div>
-      <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isPending}>{isPending ? "Updating..." : "Update Location"}</Button>
+      <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2" disabled={isPending}>
+        {isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : "Update Location"}
+      </Button>
     </form>
-  )
+  );
 }
 
 function ScheduleMoveForm({ onSubmit, isPending }: any) {
@@ -301,11 +353,7 @@ function ScheduleMoveForm({ onSubmit, isPending }: any) {
       e.preventDefault();
       const fd = new FormData(e.currentTarget);
       if (!targetLocation) return alert("Select a target location");
-      onSubmit({
-        targetLocation,
-        arrivesInDays: Number(fd.get("days")),
-        description: fd.get("description")
-      });
+      onSubmit({ targetLocation, arrivesInDays: Number(fd.get("days")), description: fd.get("description") });
     }} className="space-y-4 mt-4">
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-700">Target Location *</label>
@@ -319,7 +367,9 @@ function ScheduleMoveForm({ onSubmit, isPending }: any) {
         <label className="text-sm font-medium text-slate-700">Description</label>
         <Input name="description" placeholder="e.g. Sailing to destination port" className="bg-white border-gray-200" />
       </div>
-      <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isPending}>{isPending ? "Scheduling..." : "Schedule Move"}</Button>
+      <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground gap-2" disabled={isPending}>
+        {isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Scheduling…</> : "Schedule Move"}
+      </Button>
     </form>
-  )
+  );
 }
