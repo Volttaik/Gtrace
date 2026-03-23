@@ -27,6 +27,7 @@ export function usePackages() {
 export function useTracking(trackingId: string) {
   return useTrackPackage(trackingId, {
     query: {
+      queryKey: getTrackPackageQueryKey(trackingId),
       enabled: !!trackingId && trackingId.trim().length > 0,
       retry: false
     }
@@ -36,6 +37,7 @@ export function useTracking(trackingId: string) {
 export function useLocationSearch(q: string) {
   return useSearchLocations({ q }, {
     query: {
+      queryKey: getListPackagesQueryKey(),
       enabled: q.length >= 1,
       staleTime: 60000,
     }
