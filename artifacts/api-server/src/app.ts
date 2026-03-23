@@ -5,7 +5,7 @@ import router from "./routes";
 import { logger } from "./lib/logger";
 import { connectMongoDB } from "./lib/mongodb";
 
-const pinoHttp = (pinoHttpModule.default ?? pinoHttpModule) as (opts: object) => (req: Request, res: Response, next: NextFunction) => void;
+const pinoHttp = (pinoHttpModule.default ?? pinoHttpModule) as unknown as (opts: object) => (req: Request, res: Response, next: NextFunction) => void;
 
 const app: Express = express();
 
