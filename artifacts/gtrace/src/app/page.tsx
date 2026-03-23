@@ -16,22 +16,24 @@ import dynamic from "next/dynamic";
 
 const HomeMap = dynamic(() => import("@/components/HomeMap"), { ssr: false });
 
+const EASE: [number, number, number, number] = [0.25, 0.46, 0.45, 0.94];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 36 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.62, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.62, ease: EASE } },
 };
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 const slideLeft = {
   hidden: { opacity: 0, x: -48 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.72, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.72, ease: EASE } },
 };
 const slideRight = {
   hidden: { opacity: 0, x: 48 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.72, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.72, ease: EASE } },
 };
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.93 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.62, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.62, ease: EASE } },
 };
 
 function AnimatedSection({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -86,7 +88,7 @@ export default function Home() {
           <motion.h1
             initial={{ opacity: 0, y: 44 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, delay: 0.14, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.85, delay: 0.14, ease: EASE }}
             className="text-5xl sm:text-6xl lg:text-8xl font-display font-bold leading-[1.0] text-slate-900 mb-6"
           >
             Track your cargo,{" "}
