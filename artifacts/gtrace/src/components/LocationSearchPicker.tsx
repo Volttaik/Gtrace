@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Search, MapPin, Plane, Anchor, Building2, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { useLocationSearch } from "@/hooks/use-packages";
-import type { Location } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Location } from "@workspace/api-client-react";
 import { cn } from "@/lib/utils";
 
 interface Props {

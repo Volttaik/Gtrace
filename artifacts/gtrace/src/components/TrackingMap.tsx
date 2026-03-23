@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet";
-import type { Location } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Location } from "@workspace/api-client-react";
 import L from "leaflet";
 
 interface Props {

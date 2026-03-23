@@ -17,7 +17,7 @@ import {
   useUpdateLocationMutation,
   useScheduleMoveMutation
 } from "@/hooks/use-packages";
-import type { Package, Location } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { Package, Location } from "@workspace/api-client-react";
 
 export default function Admin() {
   const { data, isLoading } = usePackages();

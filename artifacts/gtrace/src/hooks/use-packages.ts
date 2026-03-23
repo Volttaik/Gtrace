@@ -17,7 +17,7 @@ import type {
   UpdateLocationRequest, 
   ScheduleMoveRequest,
   SearchLocationsParams
-} from "@workspace/api-client-react/src/generated/api.schemas";
+} from "@workspace/api-client-react";
 
 // Re-export querying hooks with defaults
 export function usePackages() {
