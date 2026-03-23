@@ -4,10 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --config vite.config.ts --host 0.0.0.0",
-    "build": "vite build --config vite.config.ts",
-    "serve": "vite preview --config vite.config.ts --host 0.0.0.0",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "dev": "next dev -p $PORT",
+    "build": "next build",
+    "start": "next start -p $PORT",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "next": "^15.3.3",
+    "react-globe.gl": "^2.37.0",
+    "react-leaflet": "^5.0.0",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -38,18 +45,14 @@
     "@radix-ui/react-toggle": "^1.1.3",
     "@radix-ui/react-toggle-group": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.2.0",
-    "@replit/vite-plugin-cartographer": "catalog:",
-    "@replit/vite-plugin-dev-banner": "catalog:",
-    "@replit/vite-plugin-runtime-error-modal": "catalog:",
+    "@tailwindcss/postcss": "^4.1.14",
     "@tailwindcss/typography": "^0.5.15",
-    "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@types/leaflet": "^1.9.21",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@types/three": "^0.183.1",
-    "@vitejs/plugin-react": "catalog:",
     "@workspace/api-client-react": "workspace:*",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
@@ -72,14 +75,6 @@
     "tailwindcss": "catalog:",
     "tw-animate-css": "^1.4.0",
     "vaul": "^1.1.2",
-    "vite": "catalog:",
-    "wouter": "^3.3.5",
     "zod": "catalog:"
-  },
-  "dependencies": {
-    "leaflet": "^1.9.4",
-    "react-globe.gl": "^2.37.0",
-    "react-leaflet": "^5.0.0",
-    "three": "^0.183.2"
   }
 }

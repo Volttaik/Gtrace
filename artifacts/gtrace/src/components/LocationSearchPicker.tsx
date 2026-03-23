@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { Search, MapPin, Plane, Anchor, Building2, X } from "lucide-react";
 import { Input } from "./ui/input";
@@ -64,23 +66,13 @@ export function LocationSearchPicker({ value, onChange, placeholder = "Search ci
         <Input
           ref={inputRef}
           value={displayValue}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setIsOpen(true);
-          }}
-          onFocus={() => {
-            setIsOpen(true);
-            if (value?.name) setQ("");
-          }}
+          onChange={(e) => { setQ(e.target.value); setIsOpen(true); }}
+          onFocus={() => { setIsOpen(true); if (value?.name) setQ(""); }}
           placeholder={placeholder}
           className="pl-9 pr-8 bg-white border-slate-200 shadow-sm focus:border-blue-400 focus:ring-blue-100 text-slate-900 placeholder:text-slate-400"
         />
         {hasValue && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-          >
+          <button type="button" onClick={handleClear} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
             <X className="w-3.5 h-3.5" />
           </button>
         )}
@@ -90,37 +82,20 @@ export function LocationSearchPicker({ value, onChange, placeholder = "Search ci
         <div className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden max-h-64 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 text-center text-sm text-slate-400">
-              <span className="inline-flex items-center gap-2">
-                <span className="w-3.5 h-3.5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin" />
-                Searching…
-              </span>
+              <span className="inline-flex items-center gap-2"><span className="w-3.5 h-3.5 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin" />Searching…</span>
             </div>
           ) : !data?.locations?.length ? (
-            <div className="p-4 text-center text-sm text-slate-400">
-              No locations found for "<span className="font-medium text-slate-600">{q}</span>"
-            </div>
+            <div className="p-4 text-center text-sm text-slate-400">No locations found for &quot;{q}&quot;</div>
           ) : (
             <ul>
               {data.locations.map((loc, i) => (
-                <li
-                  key={i}
-                  onClick={() => {
-                    onChange(loc);
-                    setIsOpen(false);
-                    setQ("");
-                  }}
-                  className="px-3 py-2.5 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors border-b border-slate-100 last:border-0"
-                >
-                  <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100 flex-shrink-0">
-                    {getTypeIcon(loc.type)}
-                  </div>
+                <li key={i} onClick={() => { onChange(loc); setIsOpen(false); setQ(""); }} className="px-3 py-2.5 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition-colors border-b border-slate-100 last:border-0">
+                  <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-100 flex-shrink-0">{getTypeIcon(loc.type)}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-800 truncate">{loc.name}</p>
                     <p className="text-xs text-slate-400">{loc.country}</p>
                   </div>
-                  <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full border capitalize flex-shrink-0", getTypeBadge(loc.type))}>
-                    {loc.type}
-                  </span>
+                  <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full border capitalize flex-shrink-0", getTypeBadge(loc.type))}>{loc.type}</span>
                 </li>
               ))}
             </ul>

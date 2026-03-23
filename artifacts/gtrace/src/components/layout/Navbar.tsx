@@ -1,9 +1,12 @@
-import { Link, useLocation } from "wouter"
-import { Map, Package } from "lucide-react"
-import { useEffect, useState } from "react"
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Map, Package } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function Navbar() {
-  const [location] = useLocation();
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -37,7 +40,7 @@ export function Navbar() {
             <Link
               href="/"
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                location === "/"
+                pathname === "/"
                   ? "text-blue-700 bg-blue-50"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
@@ -47,7 +50,7 @@ export function Navbar() {
             <Link
               href="/track"
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                location.startsWith("/track")
+                pathname?.startsWith("/track")
                   ? "text-blue-700 bg-blue-50"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
