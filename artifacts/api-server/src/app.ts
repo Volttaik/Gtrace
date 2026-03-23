@@ -33,8 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 
 connectMongoDB().catch((err) => {
-  logger.error({ err }, "Failed to connect to MongoDB");
-  process.exit(1);
+  logger.warn({ err }, "MongoDB not available — package CRUD disabled, location search still works");
 });
 
 export default app;

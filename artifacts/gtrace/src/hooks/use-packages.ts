@@ -36,7 +36,7 @@ export function useTracking(trackingId: string) {
 export function useLocationSearch(q: string) {
   return useSearchLocations({ q }, {
     query: {
-      enabled: q.length > 2,
+      enabled: q.length >= 1,
       staleTime: 60000,
     }
   });
