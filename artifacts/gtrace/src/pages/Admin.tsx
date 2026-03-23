@@ -1,6 +1,6 @@
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Plus, MapPin, Navigation, Edit, Trash2, Package as PkgIcon, Search } from "lucide-react"
+import { motion } from "framer-motion"
+import { Plus, MapPin, Navigation, Edit, Trash2, Search } from "lucide-react"
 import { Navbar } from "@/components/layout/Navbar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,6 @@ import {
   useScheduleMoveMutation
 } from "@/hooks/use-packages"
 import type { Package, Location } from "@workspace/api-client-react/src/generated/api.schemas"
-import { formatDate } from "@/lib/utils"
 
 export default function Admin() {
   const { data, isLoading } = usePackages();
@@ -44,71 +43,87 @@ export default function Admin() {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    let colors = "";
+    switch (status) {
+      case 'delivered': colors = 'bg-green-100 text-green-700 border-green-200'; break;
+      case 'in_transit': colors = 'bg-blue-100 text-blue-700 border-blue-200'; break;
+      case 'exception': colors = 'bg-red-100 text-red-700 border-red-200'; break;
+      case 'out_for_delivery': colors = 'bg-indigo-100 text-indigo-700 border-indigo-200'; break;
+      default: colors = 'bg-gray-100 text-gray-700 border-gray-200'; break;
+    }
+    return (
+      <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase border ${colors}`}>
+        {status.replace(/_/g, ' ')}
+      </span>
+    );
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar />
 
       <main className="flex-1 flex flex-col pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-12">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
-            <h1 className="text-3xl font-display font-bold">Admin Dashboard</h1>
+            <h1 className="text-3xl font-display font-bold text-foreground">Admin Dashboard</h1>
             <p className="text-muted-foreground mt-1">Manage global shipments and track routes</p>
           </div>
-          <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+          <Button onClick={() => setIsCreateOpen(true)} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
             <Plus className="w-4 h-4" /> Add Package
           </Button>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="glass-card flex-1 p-6 flex flex-col">
-          <div className="flex items-center gap-3 mb-6 max-w-sm">
-            <Search className="w-5 h-5 text-muted-foreground" />
-            <Input 
-              placeholder="Search by ID or Name..." 
-              value={search} onChange={e => setSearch(e.target.value)}
-              className="bg-white/5"
-            />
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="card-surface flex-1 flex flex-col overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center gap-3 max-w-sm">
+              <Search className="w-5 h-5 text-muted-foreground" />
+              <Input 
+                placeholder="Search by ID or Name..." 
+                value={search} onChange={e => setSearch(e.target.value)}
+                className="bg-white border-border shadow-sm"
+              />
+            </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-white/5 border-y border-white/10">
+              <thead className="text-xs text-muted-foreground uppercase bg-gray-50/50 border-b border-border">
                 <tr>
-                  <th className="px-4 py-4 font-medium rounded-tl-lg">Tracking ID</th>
-                  <th className="px-4 py-4 font-medium">Package</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
-                  <th className="px-4 py-4 font-medium">Location</th>
-                  <th className="px-4 py-4 font-medium">Destination</th>
-                  <th className="px-4 py-4 font-medium text-right rounded-tr-lg">Actions</th>
+                  <th className="px-6 py-4 font-medium">Tracking ID</th>
+                  <th className="px-6 py-4 font-medium">Package</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">Location</th>
+                  <th className="px-6 py-4 font-medium">Destination</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-border bg-white">
                 {isLoading ? (
                   <tr><td colSpan={6} className="text-center py-10 text-muted-foreground">Loading packages...</td></tr>
                 ) : packages.length === 0 ? (
                   <tr><td colSpan={6} className="text-center py-10 text-muted-foreground">No packages found.</td></tr>
                 ) : packages.map((pkg) => (
-                  <tr key={pkg._id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-4 font-mono text-primary font-medium">{pkg.trackingId}</td>
-                    <td className="px-4 py-4 font-medium text-foreground">{pkg.name}</td>
-                    <td className="px-4 py-4">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 uppercase border border-white/10">
-                        {pkg.status.replace('_', ' ')}
-                      </span>
+                  <tr key={pkg._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 font-mono text-primary font-medium">{pkg.trackingId}</td>
+                    <td className="px-6 py-4 font-medium text-foreground">{pkg.name}</td>
+                    <td className="px-6 py-4">
+                      {getStatusBadge(pkg.status)}
                     </td>
-                    <td className="px-4 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.currentLocation.name}</td>
-                    <td className="px-4 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.destination.name}</td>
-                    <td className="px-4 py-4 text-right">
+                    <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.currentLocation.name}</td>
+                    <td className="px-6 py-4 text-muted-foreground truncate max-w-[150px]">{pkg.destination.name}</td>
+                    <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="sm" onClick={() => setUpdateLocPkg(pkg)} title="Update Location" className="h-8 w-8 p-0">
+                        <Button variant="outline" size="sm" onClick={() => setUpdateLocPkg(pkg)} title="Update Location" className="h-8 w-8 p-0 border-gray-200 hover:bg-gray-50 text-gray-700">
                           <MapPin className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => setSchedulePkg(pkg)} title="Schedule Move" className="h-8 w-8 p-0 text-accent hover:text-accent">
+                        <Button variant="outline" size="sm" onClick={() => setSchedulePkg(pkg)} title="Schedule Move" className="h-8 w-8 p-0 border-gray-200 hover:bg-gray-50 text-blue-600">
                           <Navigation className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => setEditPkg(pkg)} className="h-8 w-8 p-0">
+                        <Button variant="outline" size="sm" onClick={() => setEditPkg(pkg)} className="h-8 w-8 p-0 border-gray-200 hover:bg-gray-50 text-gray-700">
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="destructive" size="sm" onClick={() => handleDelete(pkg._id)} className="h-8 w-8 p-0">
+                        <Button variant="outline" size="sm" onClick={() => handleDelete(pkg._id)} className="h-8 w-8 p-0 border-red-200 hover:bg-red-50 text-red-600">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -126,7 +141,7 @@ export default function Admin() {
         open={isCreateOpen || !!editPkg} 
         onClose={() => { setIsCreateOpen(false); setEditPkg(null); }}
         pkg={editPkg}
-        onSave={(data) => {
+        onSave={(data: any) => {
           if (editPkg) updatePkgMut.mutate({ id: editPkg._id, data }, { onSuccess: () => { setEditPkg(null); } });
           else createMut.mutate({ data }, { onSuccess: () => setIsCreateOpen(false) });
         }}
@@ -134,10 +149,10 @@ export default function Admin() {
 
       {/* UPDATE LOCATION MODAL */}
       <Dialog open={!!updateLocPkg} onOpenChange={(o) => !o && setUpdateLocPkg(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Update Location - {updateLocPkg?.trackingId}</DialogTitle></DialogHeader>
+        <DialogContent className="bg-white border-border shadow-lg">
+          <DialogHeader><DialogTitle className="text-foreground">Update Location - {updateLocPkg?.trackingId}</DialogTitle></DialogHeader>
           <UpdateLocationForm 
-            onSubmit={(formData) => {
+            onSubmit={(formData: any) => {
               if (updateLocPkg) updateLocMut.mutate({ id: updateLocPkg._id, data: formData }, { onSuccess: () => setUpdateLocPkg(null) });
             }} 
             isPending={updateLocMut.isPending}
@@ -148,10 +163,10 @@ export default function Admin() {
 
       {/* SCHEDULE MOVE MODAL */}
       <Dialog open={!!schedulePkg} onOpenChange={(o) => !o && setSchedulePkg(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Schedule Move - {schedulePkg?.trackingId}</DialogTitle></DialogHeader>
+        <DialogContent className="bg-white border-border shadow-lg">
+          <DialogHeader><DialogTitle className="text-foreground">Schedule Move - {schedulePkg?.trackingId}</DialogTitle></DialogHeader>
           <ScheduleMoveForm 
-            onSubmit={(formData) => {
+            onSubmit={(formData: any) => {
               if (schedulePkg) scheduleMut.mutate({ id: schedulePkg._id, data: formData }, { onSuccess: () => setSchedulePkg(null) });
             }} 
             isPending={scheduleMut.isPending}
@@ -176,7 +191,7 @@ function CreateEditModal({ open, onClose, pkg, onSave }: any) {
     onSave({
       name: fd.get("name"),
       description: fd.get("description"),
-      weight: fd.get("weight"),
+      weight: fd.get("weight") ? Number(fd.get("weight")) : undefined,
       category: fd.get("category"),
       status: fd.get("status"),
       origin,
@@ -186,17 +201,17 @@ function CreateEditModal({ open, onClose, pkg, onSave }: any) {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>{pkg ? "Edit" : "Create"} Package</DialogTitle></DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-border shadow-lg">
+        <DialogHeader><DialogTitle className="text-foreground">{pkg ? "Edit" : "Create"} Package</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Package Name *</label>
-              <Input name="name" defaultValue={pkg?.name} required />
+              <label className="text-sm font-medium text-slate-700">Package Name *</label>
+              <Input name="name" defaultValue={pkg?.name} required className="bg-white border-gray-200" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Status</label>
-              <select name="status" defaultValue={pkg?.status || "pending"} className="flex h-11 w-full rounded-xl border border-white/10 bg-white/5 px-4 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-primary outline-none">
+              <label className="text-sm font-medium text-slate-700">Status</label>
+              <select name="status" defaultValue={pkg?.status || "pending"} className="flex h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                 <option value="pending">Pending</option>
                 <option value="in_transit">In Transit</option>
                 <option value="out_for_delivery">Out for Delivery</option>
@@ -207,35 +222,35 @@ function CreateEditModal({ open, onClose, pkg, onSave }: any) {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Description *</label>
-            <Input name="description" defaultValue={pkg?.description} required />
+            <label className="text-sm font-medium text-slate-700">Description *</label>
+            <Input name="description" defaultValue={pkg?.description} required className="bg-white border-gray-200" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Origin *</label>
+              <label className="text-sm font-medium text-slate-700">Origin *</label>
               <LocationSearchPicker value={origin || undefined} onChange={setOrigin} placeholder="Search origin..." />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Destination *</label>
+              <label className="text-sm font-medium text-slate-700">Destination *</label>
               <LocationSearchPicker value={destination || undefined} onChange={setDestination} placeholder="Search destination..." />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Weight (kg)</label>
-              <Input name="weight" defaultValue={pkg?.weight} />
+              <label className="text-sm font-medium text-slate-700">Weight (kg)</label>
+              <Input name="weight" type="number" step="0.01" defaultValue={pkg?.weight} className="bg-white border-gray-200" />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Category</label>
-              <Input name="category" defaultValue={pkg?.category} />
+              <label className="text-sm font-medium text-slate-700">Category</label>
+              <Input name="category" defaultValue={pkg?.category} className="bg-white border-gray-200" />
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end gap-3 border-t border-white/10">
-            <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-            <Button type="submit">Save Package</Button>
+          <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+            <Button type="button" variant="outline" onClick={onClose} className="border-gray-200">Cancel</Button>
+            <Button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground">Save Package</Button>
           </div>
         </form>
         <DialogClose onClick={onClose} />
@@ -259,18 +274,18 @@ function UpdateLocationForm({ onSubmit, isPending }: any) {
       });
     }} className="space-y-4 mt-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">New Location *</label>
+        <label className="text-sm font-medium text-slate-700">New Location *</label>
         <LocationSearchPicker value={location || undefined} onChange={setLocation} />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Event Status Update</label>
-        <Input name="status" placeholder="e.g. Arrived at Port" required />
+        <label className="text-sm font-medium text-slate-700">Event Status Update</label>
+        <Input name="status" placeholder="e.g. Arrived at Port" required className="bg-white border-gray-200" />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Description</label>
-        <Input name="description" placeholder="Additional details..." required />
+        <label className="text-sm font-medium text-slate-700">Description</label>
+        <Input name="description" placeholder="Additional details..." required className="bg-white border-gray-200" />
       </div>
-      <Button type="submit" className="w-full" disabled={isPending}>{isPending ? "Updating..." : "Update Location"}</Button>
+      <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isPending}>{isPending ? "Updating..." : "Update Location"}</Button>
     </form>
   )
 }
@@ -290,18 +305,18 @@ function ScheduleMoveForm({ onSubmit, isPending }: any) {
       });
     }} className="space-y-4 mt-4">
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Target Location *</label>
+        <label className="text-sm font-medium text-slate-700">Target Location *</label>
         <LocationSearchPicker value={targetLocation || undefined} onChange={setTargetLocation} />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Arrives in (Days) *</label>
-        <Input name="days" type="number" min="1" required placeholder="e.g. 5" />
+        <label className="text-sm font-medium text-slate-700">Arrives in (Days) *</label>
+        <Input name="days" type="number" min="1" required placeholder="e.g. 5" className="bg-white border-gray-200" />
       </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium text-muted-foreground">Description</label>
-        <Input name="description" placeholder="e.g. Sailing to destination port" />
+        <label className="text-sm font-medium text-slate-700">Description</label>
+        <Input name="description" placeholder="e.g. Sailing to destination port" className="bg-white border-gray-200" />
       </div>
-      <Button type="submit" className="w-full bg-accent hover:bg-accent/90" disabled={isPending}>{isPending ? "Scheduling..." : "Schedule Move"}</Button>
+      <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={isPending}>{isPending ? "Scheduling..." : "Schedule Move"}</Button>
     </form>
   )
 }

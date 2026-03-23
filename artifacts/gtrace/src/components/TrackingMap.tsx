@@ -11,14 +11,14 @@ interface Props {
 
 const originIcon = L.divIcon({
   className: "custom-div-icon",
-  html: `<div class="w-4 h-4 rounded-full bg-white border-4 border-background shadow-[0_0_10px_rgba(255,255,255,0.5)]"></div>`,
+  html: `<div class="w-4 h-4 rounded-full bg-slate-800 border-2 border-white shadow-sm"></div>`,
   iconSize: [16, 16],
   iconAnchor: [8, 8],
 });
 
 const destIcon = L.divIcon({
   className: "custom-div-icon",
-  html: `<div class="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(0,255,255,0.8)]"></div>`,
+  html: `<div class="w-5 h-5 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>`,
   iconSize: [20, 20],
   iconAnchor: [10, 10],
 });
@@ -26,8 +26,8 @@ const destIcon = L.divIcon({
 const currentIcon = L.divIcon({
   className: "custom-div-icon",
   html: `<div class="relative flex items-center justify-center w-8 h-8">
-          <div class="absolute inset-0 bg-primary/30 rounded-full animate-ping"></div>
-          <div class="relative w-4 h-4 rounded-full bg-primary border-2 border-background shadow-[0_0_15px_rgba(0,183,255,0.8)]"></div>
+          <div class="absolute inset-0 bg-blue-500/20 rounded-full animate-ping"></div>
+          <div class="relative w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-sm"></div>
         </div>`,
   iconSize: [32, 32],
   iconAnchor: [16, 16],
@@ -53,26 +53,26 @@ export function TrackingMap({ origin, destination, current }: Props) {
   ];
 
   return (
-    <div className="w-full h-full bg-card rounded-2xl overflow-hidden relative z-0 border border-white/5 shadow-2xl">
+    <div className="w-full h-full bg-white rounded-xl overflow-hidden relative z-0 border border-border shadow-md">
       <MapContainer 
         center={[0, 0]} 
         zoom={2} 
         style={{ height: "100%", width: "100%" }}
-        zoomControl={false}
+        zoomControl={true}
       >
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         />
         
         <Polyline 
           positions={linePositions} 
-          pathOptions={{ color: 'rgba(255,255,255,0.2)', weight: 2, dashArray: '5, 10' }} 
+          pathOptions={{ color: '#94a3b8', weight: 2, dashArray: '5, 10' }} 
         />
         
         <Polyline 
           positions={[[origin.lat, origin.lng], [current.lat, current.lng]]} 
-          pathOptions={{ color: '#00b7ff', weight: 3 }} 
+          pathOptions={{ color: '#3b82f6', weight: 3 }} 
         />
 
         <Marker position={[origin.lat, origin.lng]} icon={originIcon} />
@@ -81,9 +81,6 @@ export function TrackingMap({ origin, destination, current }: Props) {
         
         <MapBounds origin={origin} dest={destination} current={current} />
       </MapContainer>
-      
-      {/* Overlay gradient for fade effect */}
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(11,16,30,1)] z-[1000]"></div>
     </div>
   );
 }

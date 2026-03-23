@@ -30,10 +30,10 @@ export function LocationSearchPicker({ value, onChange, placeholder = "Search lo
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "airport": return <Plane className="w-4 h-4 text-primary" />;
-      case "port": return <Anchor className="w-4 h-4 text-blue-400" />;
-      case "city": return <Building2 className="w-4 h-4 text-muted-foreground" />;
-      default: return <MapPin className="w-4 h-4 text-muted-foreground" />;
+      case "airport": return <Plane className="w-4 h-4 text-blue-600" />;
+      case "port": return <Anchor className="w-4 h-4 text-blue-500" />;
+      case "city": return <Building2 className="w-4 h-4 text-slate-500" />;
+      default: return <MapPin className="w-4 h-4 text-slate-500" />;
     }
   };
 
@@ -49,12 +49,12 @@ export function LocationSearchPicker({ value, onChange, placeholder = "Search lo
           }}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
-          className="pl-10 pr-4"
+          className="pl-10 pr-4 bg-white border-border shadow-sm"
         />
       </div>
 
       {isOpen && q.length > 2 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-lg z-50 overflow-hidden max-h-60 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
           ) : data?.locations?.length === 0 ? (
@@ -69,9 +69,9 @@ export function LocationSearchPicker({ value, onChange, placeholder = "Search lo
                     setIsOpen(false);
                     setQ("");
                   }}
-                  className="px-4 py-3 hover:bg-white/5 cursor-pointer flex items-center gap-3 transition-colors border-b border-white/5 last:border-0"
+                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 transition-colors border-b border-gray-100 last:border-0"
                 >
-                  <div className="p-2 bg-white/5 rounded-lg">
+                  <div className="p-2 bg-gray-50 rounded-lg border border-gray-100">
                     {getTypeIcon(loc.type)}
                   </div>
                   <div>
