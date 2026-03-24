@@ -10,6 +10,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import dynamic from "next/dynamic";
 import { useTracking } from "@/hooks/use-packages";
 import { formatDate } from "@/lib/utils";
+import { LocationPhotoCard } from "@/components/LocationPhotoCard";
 
 const TrackingMap = dynamic(
   () => import("@/components/TrackingMap").then((m) => ({ default: m.TrackingMap })),
@@ -158,6 +159,15 @@ export default function TrackingPage({ params }: { params: Promise<{ id: string 
                   <span>{pkg.totalDistance?.toLocaleString() || 0} km total</span>
                 </div>
               </div>
+              {pkg.currentLocation && (
+                <LocationPhotoCard
+                  name={pkg.currentLocation.name}
+                  country={pkg.currentLocation.country ?? ""}
+                  lat={pkg.currentLocation.lat}
+                  lng={pkg.currentLocation.lng}
+                />
+              )}
+
               <div className="flex-1 min-h-[400px] lg:min-h-[500px]">
                 <TrackingMap origin={pkg.origin} destination={pkg.destination} current={pkg.currentLocation} />
               </div>

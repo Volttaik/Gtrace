@@ -9,7 +9,8 @@ import {
   useScheduleMove,
   useSearchLocations,
   getListPackagesQueryKey,
-  getTrackPackageQueryKey
+  getTrackPackageQueryKey,
+  getSearchLocationsQueryKey
 } from "@workspace/api-client-react";
 import type { 
   CreatePackageRequest, 
@@ -37,7 +38,7 @@ export function useTracking(trackingId: string) {
 export function useLocationSearch(q: string) {
   return useSearchLocations({ q }, {
     query: {
-      queryKey: getListPackagesQueryKey(),
+      queryKey: getSearchLocationsQueryKey({ q }),
       enabled: q.length >= 1,
       staleTime: 60000,
     }
