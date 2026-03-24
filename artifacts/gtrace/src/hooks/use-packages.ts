@@ -30,7 +30,12 @@ export function useTracking(trackingId: string) {
     query: {
       queryKey: getTrackPackageQueryKey(trackingId),
       enabled: !!trackingId && trackingId.trim().length > 0,
-      retry: false
+      retry: false,
+      refetchInterval: (query) => {
+        const data = query.state.data;
+        return data?.scheduledMove ? 20000 : false;
+      },
+      refetchIntervalInBackground: false,
     }
   });
 }
