@@ -30,6 +30,7 @@ const LocationEventSchema = new Schema(
 const ScheduledMoveSchema = new Schema(
   {
     targetLocation: { type: LocationSchema, required: true },
+    startLocation: { type: LocationSchema, required: true },
     scheduledAt: { type: String, required: true },
     arrivesInDays: { type: Number, required: true },
     arrivalDate: { type: String, required: true },

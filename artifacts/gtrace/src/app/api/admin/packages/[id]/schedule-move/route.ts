@@ -26,6 +26,7 @@ export async function POST(
 
     const scheduledMove = {
       targetLocation: body.targetLocation,
+      startLocation: pkg.currentLocation,
       scheduledAt,
       arrivesInDays: body.arrivesInDays,
       arrivalDate,
@@ -33,7 +34,7 @@ export async function POST(
 
     const updated = await PackageModel.findByIdAndUpdate(
       id,
-      { $set: { scheduledMove } },
+      { $set: { scheduledMove, status: "in_transit" } },
       { new: true }
     );
     return NextResponse.json(updated);

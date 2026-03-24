@@ -1,3 +1,8 @@
+/** Linearly interpolate a value between a and b by t (0–1). */
+export function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
 export function haversineDistance(
   lat1: number,
   lng1: number,

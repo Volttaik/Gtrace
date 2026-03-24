@@ -208,7 +208,6 @@ export function LocationPhotoCard({ name, country, lat, lng }: Props) {
     });
   }, [name, country]);
 
-  const osmLink = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=13/${lat}/${lng}`;
   const badge = photo ? (SOURCE_COLOUR[photo.source] ?? "bg-slate-700") : "";
 
   return (
@@ -227,14 +226,6 @@ export function LocationPhotoCard({ name, country, lat, lng }: Props) {
             <p className="text-xs text-muted-foreground">{country}</p>
           </div>
         </div>
-        <a
-          href={osmLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-primary hover:underline flex items-center gap-1 shrink-0"
-        >
-          <MapPin className="w-3 h-3" /> View on map
-        </a>
       </div>
 
       {/* Photo area */}
